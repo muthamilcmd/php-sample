@@ -33,11 +33,11 @@ stages:
 
 - stage: Deploy
   displayName: Deploy to Azure App Service
+  dependsOn: Build
   jobs:
   - job: Deploy
     steps:
     - download: current
-      displayName: "Download Build Artifact"
       artifact: drop
 
     - task: AzureWebApp@1
@@ -45,5 +45,6 @@ stages:
       inputs:
         azureSubscription: $(azureSubscription)
         appName: $(webAppName)
-        package: $(packagePath)
+        package: "$(Pipeline.Workspace)/drop/app.zip"
+
 
