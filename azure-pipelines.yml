@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  azureSubscription: 'azure-connection'
+  azureSubscription: 'MPN Subscription - Kishor Kumar M (a3a318e9-0d22-45a7-8c52-e7a4ae518271)'
   webAppName: 'sample-php'
   packagePath: '$(Build.ArtifactStagingDirectory)/app.zip'
 
