@@ -1,0 +1,49 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: 'MPN Subscription - Kishor Kumar M (a3a318e9-0d22-45a7-8c52-e7a4ae518271)'
+  webAppName: 'sample-php'
+  packagePath: '$(Build.ArtifactStagingDirectory)/app.zip'
+
+stages:
+- stage: Build
+  displayName: Build PHP App
+  jobs:
+  - job: Build
+    steps:
+    - checkout: self
+
+    - task: ArchiveFiles@2
+      displayName: "Archive PHP Application"
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(packagePath)
+        replaceExistingArchive: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: $(Build.ArtifactStagingDirectory)
+        ArtifactName: 'drop'
+
+- stage: Deploy
+  displayName: Deploy to Azure App Service
+  jobs:
+  - job: Deploy
+    steps:
+    - download: current
+      displayName: "Download Build Artifact"
+      artifact: drop
+
+    - task: AzureWebApp@1
+      displayName: "Deploy to App Service"
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appName: $(webAppName)
+        package: $(packagePath)
+
