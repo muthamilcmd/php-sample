@@ -20,13 +20,11 @@ stages:
     - task: ArchiveFiles@2
       displayName: "Archive PHP Application"
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/app'
         includeRootFolder: false
         archiveType: zip
         archiveFile: $(packagePath)
         replaceExistingArchive: true
-        filePatterns: |
-          **/*.php
 
     - task: PublishBuildArtifacts@1
       inputs:
