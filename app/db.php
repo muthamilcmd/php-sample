@@ -1,21 +1,16 @@
 <?php
 
-// Read values from App Service environment variables
 $host = getenv('DB_HOST');
 $user = getenv('DB_USER');
 $pass = getenv('DB_PASS');
 $dbname = getenv('DB_NAME');
 
-// If ANY variable is missing → fail gracefully
-if (!$host || !$user || !$pass || !$dbname) {
-    die("Missing environment variables. Please set DB_HOST, DB_USER, DB_PASS, DB_NAME in App Service.");
-}
+$conn = mysqli_init();
 
-// Create MySQL connection
-$conn = mysqli_connect($host, $user, $pass, $dbname);
+// Azure MySQL requires SSL
+mysqli_ssl_set($conn, NULL, NULL, NULL, '/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem', NULL);
 
-// Connection check
-if (!$conn) {
-    die("Database Connection Failed: " . mysqli_connect_error());
+if (!mysqli_real_connect($conn, $host, $user, $pass, $dbname, 3306, NULL, MYSQLI_CLIENT_SSL)) {
+    die('Database Connection Failed: ' . mysqli_connect_error());
 }
 ?>
