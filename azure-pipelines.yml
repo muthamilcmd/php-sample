@@ -11,45 +11,49 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build PHP App
+  displayName: 'Build PHP App'
   jobs:
   - job: Build
     steps:
     - checkout: self
 
-    # Zip only the /app folder
+    # Zip ONLY the PHP app files (repo root)
     - task: ArchiveFiles@2
-      displayName: "Archive PHP Application"
+      displayName: 'Archive PHP Application'
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/app'
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
         includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(packagePath)
+        archiveType: 'zip'
+        archiveFile: '$(packagePath)'
         replaceExistingArchive: true
+        # Only PHP + SQL – avoid azure-pipelines.yml being served
+        filePatterns: |
+          *.php
+          MySQL Table Script/*
 
     - task: PublishBuildArtifacts@1
+      displayName: 'Publish build artifacts'
       inputs:
-        PathtoPublish: $(Build.ArtifactStagingDirectory)
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
+        publishLocation: 'Container'
 
 - stage: Deploy
-  displayName: Deploy to Azure App Service
+  displayName: 'Deploy to Azure App Service'
   dependsOn: Build
   jobs:
   - job: Deploy
     steps:
     - download: current
-      artifact: drop
+      artifact: 'drop'
 
-    # Deploy ZIP + clean wwwroot properly
     - task: AzureWebApp@1
-      displayName: "Deploy to App Service"
+      displayName: 'Deploy to App Service'
       inputs:
-        azureSubscription: $(azureSubscription)
-        appName: $(webAppName)
-        package: "$(Pipeline.Workspace)/drop/app.zip"
-        enableCustomDeployment: true
-        deploymentMethod: zipDeploy
+        azureSubscription: '$(azureSubscription)'
+        appName: '$(webAppName)'
+        package: '$(Pipeline.Workspace)/drop/app.zip'
+
 
 
 
