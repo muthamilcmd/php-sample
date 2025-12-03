@@ -1,16 +1,15 @@
 <?php
+$host = getenv("DB_HOST");
+$user = getenv("DB_USER");
+$pass = getenv("DB_PASS");
+$db   = getenv("DB_NAME");
 
-$host = getenv('DB_HOST');
-$user = getenv('DB_USER');
-$pass = getenv('DB_PASS');
-$dbname = getenv('DB_NAME');
-
+// Init MySQL with SSL
 $conn = mysqli_init();
+mysqli_ssl_set($conn, NULL, NULL, "/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem", NULL, NULL);
 
-// Azure MySQL requires SSL
-mysqli_ssl_set($conn, NULL, NULL, NULL, '/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem', NULL);
-
-if (!mysqli_real_connect($conn, $host, $user, $pass, $dbname, 3306, NULL, MYSQLI_CLIENT_SSL)) {
-    die('Database Connection Failed: ' . mysqli_connect_error());
+if (!mysqli_real_connect($conn, $host, $user, $pass, $db, 3306, NULL, MYSQLI_CLIENT_SSL)) {
+    die("Database connection failed: " . mysqli_connect_error());
 }
 ?>
+
