@@ -25,6 +25,8 @@ stages:
         archiveType: zip
         archiveFile: $(packagePath)
         replaceExistingArchive: true
+        globPatterns: |
+          *.php
 
     - task: PublishBuildArtifacts@1
       inputs:
