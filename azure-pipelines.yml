@@ -10,6 +10,7 @@ variables:
   packagePath: '$(Build.ArtifactStagingDirectory)/app.zip'
 
 stages:
+# ---------- BUILD ----------
 - stage: Build
   displayName: 'Build PHP App'
   jobs:
@@ -17,23 +18,24 @@ stages:
     steps:
     - checkout: self
 
+    # Zip ONLY the contents of /app so files land at wwwroot root
     - task: ArchiveFiles@2
-      displayName: 'Archive PHP App'
+      displayName: 'Archive PHP application'
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(packagePath)
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/app'
+        includeRootFolder: false          # <---- IMPORTANT
+        archiveType: 'zip'
+        archiveFile: '$(packagePath)'
         replaceExistingArchive: true
-        filePatterns: |
-          **/*.php
-          **/*.sql
 
     - task: PublishBuildArtifacts@1
+      displayName: 'Publish build artifacts'
       inputs:
-        PathtoPublish: $(Build.ArtifactStagingDirectory)
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
+        publishLocation: 'Container'
 
+# ---------- DEPLOY ----------
 - stage: Deploy
   displayName: 'Deploy to Azure App Service'
   dependsOn: Build
@@ -41,14 +43,14 @@ stages:
   - job: Deploy
     steps:
     - download: current
-      artifact: drop
+      artifact: 'drop'
 
     - task: AzureWebApp@1
-      displayName: 'Deploy App'
+      displayName: 'Deploy to App Service'
       inputs:
-        azureSubscription: $(azureSubscription)
-        appName: $(webAppName)
-        package: "$(Pipeline.Workspace)/drop/app.zip"
+        azureSubscription: '$(azureSubscription)'
+        appName: '$(webAppName)'
+        package: '$(Pipeline.Workspace)/drop/app.zip'
 
 
 
