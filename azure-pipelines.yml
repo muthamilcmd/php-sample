@@ -17,6 +17,7 @@ stages:
     steps:
     - checkout: self
 
+    # Zip only the /app folder
     - task: ArchiveFiles@2
       displayName: "Archive PHP Application"
       inputs:
@@ -40,12 +41,16 @@ stages:
     - download: current
       artifact: drop
 
+    # Deploy ZIP + clean wwwroot properly
     - task: AzureWebApp@1
       displayName: "Deploy to App Service"
       inputs:
         azureSubscription: $(azureSubscription)
         appName: $(webAppName)
         package: "$(Pipeline.Workspace)/drop/app.zip"
+        enableCustomDeployment: true
+        deploymentMethod: zipDeploy
+
 
 
 
